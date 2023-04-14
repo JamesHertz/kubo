@@ -67,10 +67,10 @@ require (
 	github.com/jbenet/go-temp-err-catcher v0.1.0
 	github.com/jbenet/goprocess v0.1.4
 	github.com/libp2p/go-doh-resolver v0.4.0
-	github.com/libp2p/go-libp2p v0.26.4
+	github.com/libp2p/go-libp2p v0.26.4 // fun :)
 	github.com/libp2p/go-libp2p-http v0.4.0
-	github.com/libp2p/go-libp2p-kad-dht v0.21.1
-	github.com/libp2p/go-libp2p-kbucket v0.5.0
+	github.com/libp2p/go-libp2p-kad-dht v0.21.1 // over here
+	github.com/libp2p/go-libp2p-kbucket v0.5.0 //  over here :)
 	github.com/libp2p/go-libp2p-pubsub v0.9.0
 	github.com/libp2p/go-libp2p-pubsub-router v0.6.0
 	github.com/libp2p/go-libp2p-record v0.2.0
@@ -244,5 +244,11 @@ require (
 	lukechampine.com/blake3 v1.1.7 // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
 )
+
+replace github.com/libp2p/go-libp2p => ../go-libp2p/
+
+replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht/
+
+replace github.com/libp2p/go-libp2p-kbucket => ../go-libp2p-kbucket/
 
 go 1.18
