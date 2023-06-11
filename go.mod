@@ -245,10 +245,11 @@ require (
 	nhooyr.io/websocket v1.8.7 // indirect
 )
 
-replace github.com/libp2p/go-libp2p => ../go-libp2p/
+// replace github.com/libp2p/go-libp2p => ../go-libp2p/ // for testing reason
+// replace github.com/libp2p/go-libp2p v0.26.4 => github.com/JamesHertz/go-libp2p v0.26.4-research
 
-replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht/
+// replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht/
 
-replace github.com/libp2p/go-libp2p-kbucket => ../go-libp2p-kbucket/
+// replace github.com/libp2p/go-libp2p-kbucket => ../go-libp2p-kbucket/
 
 go 1.18
