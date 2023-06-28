@@ -79,6 +79,9 @@ var findProvidersRoutingCmd = &cmds.Command{
 		ctx, cancel := context.WithCancel(req.Context)
 		ctx, events := routing.RegisterForQueryEvents(ctx)
 
+		start       := time.Now()
+		peers_count := 0
+
 		pchan := n.Routing.FindProvidersAsync(ctx, c, numProviders)
 
 		go func() {
@@ -95,8 +98,18 @@ var findProvidersRoutingCmd = &cmds.Command{
 			if err := res.Emit(e); err != nil {
 				return err
 			}
+			pids := make([]peer.ID, len(e.Responses))
+
+			for i, pi := range e.Responses {
+				pids[i] = pi.ID
+			}
+
+			fmt.Printf("peers: %v (%d peers)\n", pids, len(e.Responses))
+			peers_count += len(e.Responses)
 		}
 
+		// count the response .. :)
+		fmt.Printf("took: %d ms to find %d providers for %s\n", time.Since(start).Milliseconds(), peers_count, c.String())
 		return nil
 	},
 	Encoders: cmds.EncoderMap{

@@ -589,6 +589,24 @@ take effect.
 		fmt.Println("(Hit ctrl-c again to force-shutdown the daemon.)")
 	}()
 
+	var wg sync.WaitGroup
+
+	// wait for my thing to finish
+	defer wg.Wait() 
+
+	// get logs from routing table :)
+	go func() {
+		wg.Add(1)
+
+		<-req.Context.Done()
+		fmt.Println("ending stuffs :)")
+		time.Sleep(10 * time.Second)
+		// TODO: discover which DHT ipfs is using :)
+		// node.DHT.LAN.RoutingTable().ListPeers() { list this ones :)}
+		wg.Done()
+	}()
+
+
 	// Give the user heads up if daemon running in online mode has no peers after 1 minute
 	if !offline {
 		time.AfterFunc(1*time.Minute, func() {
