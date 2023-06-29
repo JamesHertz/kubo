@@ -609,7 +609,7 @@ take effect.
 			wan_peers := node.DHT.WAN.RoutingTable().ListPeers()
 			lan_peers := node.DHT.LAN.RoutingTable().ListPeers()
 
-			peersLog.Printf(`{"wan": %d , "lad": %d}\n`, len(wan_peers), len(lan_peers))
+			peersLog.Printf(`{"wan": %d , "lad": %d}`, len(wan_peers), len(lan_peers))
 			select {
 			case <-req.Context.Done():
 				return;
