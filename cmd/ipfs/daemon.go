@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	_ "expvar"
 	"fmt"
@@ -606,10 +607,11 @@ take effect.
 		defer wg.Done()
 
 		for {
-			wan_peers := node.DHT.WAN.RoutingTable().ListPeers()
+			 // here is where the peers we are using are being added
 			lan_peers := node.DHT.LAN.RoutingTable().ListPeers()
+			res, _ := json.Marshal(lan_peers)
+			peersLog.Printf(string(res))
 
-			peersLog.Printf(`{"wan": %d , "lad": %d}`, len(wan_peers), len(lan_peers))
 			select {
 			case <-req.Context.Done():
 				return;
