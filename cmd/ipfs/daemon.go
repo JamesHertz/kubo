@@ -606,15 +606,21 @@ take effect.
 		wg.Add(1)
 		defer wg.Done()
 
+		// so I can take another sample of the routing table right when it's ending
+		timeIsOver := false
 		for {
 			 // here is where the peers we are using are being added
 			lan_peers := node.DHT.LAN.RoutingTable().ListPeers()
 			res, _ := json.Marshal(lan_peers)
 			peersLog.Printf(string(res))
 
+			if timeIsOver {
+				return
+			}
+
 			select {
-			case <-req.Context.Done():
-				return;
+			case <-req.Context.Done(): // todo take one more sample and then exit
+				timeIsOver = true
 			case <- time.After(time.Minute): // wait a minute :)
 			}
 
