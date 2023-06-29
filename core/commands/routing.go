@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -85,9 +86,10 @@ var findProvidersRoutingCmd = &cmds.Command{
 
 		// FINISH over here :)
 		start       := time.Now()
-		peers_count := 0
+		// peers_found  := make(map[peer.ID]struct{}, 10)
 
-		pchan := n.Routing.FindProvidersAsync(ctx, c, numProviders)
+		responses := [][]*peer.AddrInfo{}
+		pchan  := n.Routing.FindProvidersAsync(ctx, c, numProviders)
 
 		go func() {
 			defer cancel()
@@ -99,24 +101,27 @@ var findProvidersRoutingCmd = &cmds.Command{
 				})
 			}
 		}()
+
 		for e := range events {
 			if err := res.Emit(e); err != nil {
 				return err
 			}
-			// pids := make([]peer.ID, len(e.Responses))
 
-			// for i, pi := range e.Responses {
-			// 	pids[i] = pi.ID
-			// }
+			responses = append(responses, e.Responses)
+		}
+		total := time.Since(start).Microseconds()
 
-			// fmt.Printf("peers: %v (%d peers)\n", pids, len(e.Responses))
-			peers_count += len(e.Responses)
+		peers := []peer.ID{}
+		for _, res := range responses {
+			for _, pa := range res {
+				peers = append(peers, pa.ID)
+			}
 		}
 
+		data, _ := json.Marshal(peers)
 		// count the response .. :)
 		// fmt.Printf("took: %d ms to find %d providers for %s\n", time.Since(start).Milliseconds(), peers_count, c.String())
-
-		lookupLog.Printf(`{"cid": "%s" , "time_ms": %d, "count": %d }`, c, time.Since(start).Milliseconds(), peers_count)
+		lookupLog.Printf(`{"cid": "%s" , "time_ms": %d, "providers": %s }`, c, total, string(data))
 		return nil
 	},
 	Encoders: cmds.EncoderMap{

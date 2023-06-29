@@ -619,7 +619,7 @@ take effect.
 			}
 
 			select {
-			case <-req.Context.Done(): // todo take one more sample and then exit
+			case <-req.Context.Done():
 				timeIsOver = true
 			case <- time.After(time.Minute): // wait a minute :)
 			}
