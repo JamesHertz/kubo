@@ -42,7 +42,12 @@ import (
 	manet "github.com/multiformats/go-multiaddr/net"
 	prometheus "github.com/prometheus/client_golang/prometheus"
 	promauto "github.com/prometheus/client_golang/prometheus/promauto"
+
+	utils "github.com/ipfs/kubo/cmd/ipfs/util"
 )
+
+
+var peersLog = utils.NewLogger("peers.log")
 
 const (
 	adjustFDLimitKwd           = "manage-fdlimit"
@@ -75,6 +80,7 @@ const (
 	// apiAddrKwd    = "address-api"
 	// swarmAddrKwd  = "address-swarm"
 )
+
 
 var daemonCmd = &cmds.Command{
 	Helptext: cmds.HelpText{
@@ -594,16 +600,25 @@ take effect.
 	// wait for my thing to finish
 	defer wg.Wait() 
 
-	// get logs from routing table :)
+	// FINISH get logs from routing table :)
 	go func() {
 		wg.Add(1)
+		defer wg.Done()
 
-		<-req.Context.Done()
-		fmt.Println("ending stuffs :)")
-		time.Sleep(10 * time.Second)
+		for {
+			wan_peers := node.DHT.WAN.RoutingTable().ListPeers()
+			lan_peers := node.DHT.LAN.RoutingTable().ListPeers()
+
+			peersLog.Printf(`{"wan": %d , "lad": %d}\n`, len(wan_peers), len(lan_peers))
+			select {
+			case <-req.Context.Done():
+				return;
+			case <- time.After(time.Minute): // wait a minute :)
+			}
+
+		}
 		// TODO: discover which DHT ipfs is using :)
 		// node.DHT.LAN.RoutingTable().ListPeers() { list this ones :)}
-		wg.Done()
 	}()
 
 

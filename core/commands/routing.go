@@ -17,6 +17,8 @@ import (
 	path "github.com/ipfs/go-path"
 	peer "github.com/libp2p/go-libp2p/core/peer"
 	routing "github.com/libp2p/go-libp2p/core/routing"
+
+	utils "github.com/ipfs/kubo/cmd/ipfs/util"
 )
 
 var RoutingCmd = &cmds.Command{
@@ -41,6 +43,8 @@ const (
 const (
 	numProvidersOptionName = "num-providers"
 )
+
+var lookupLog = utils.NewLogger("lookup-times.log")
 
 var findProvidersRoutingCmd = &cmds.Command{
 	Helptext: cmds.HelpText{
@@ -79,6 +83,7 @@ var findProvidersRoutingCmd = &cmds.Command{
 		ctx, cancel := context.WithCancel(req.Context)
 		ctx, events := routing.RegisterForQueryEvents(ctx)
 
+		// FINISH over here :)
 		start       := time.Now()
 		peers_count := 0
 
@@ -98,18 +103,20 @@ var findProvidersRoutingCmd = &cmds.Command{
 			if err := res.Emit(e); err != nil {
 				return err
 			}
-			pids := make([]peer.ID, len(e.Responses))
+			// pids := make([]peer.ID, len(e.Responses))
 
-			for i, pi := range e.Responses {
-				pids[i] = pi.ID
-			}
+			// for i, pi := range e.Responses {
+			// 	pids[i] = pi.ID
+			// }
 
-			fmt.Printf("peers: %v (%d peers)\n", pids, len(e.Responses))
+			// fmt.Printf("peers: %v (%d peers)\n", pids, len(e.Responses))
 			peers_count += len(e.Responses)
 		}
 
 		// count the response .. :)
-		fmt.Printf("took: %d ms to find %d providers for %s\n", time.Since(start).Milliseconds(), peers_count, c.String())
+		// fmt.Printf("took: %d ms to find %d providers for %s\n", time.Since(start).Milliseconds(), peers_count, c.String())
+
+		lookupLog.Printf(`{"cid": "%s" , "time_ms": %d, "count": %d }`, c, time.Since(start).Milliseconds(), peers_count)
 		return nil
 	},
 	Encoders: cmds.EncoderMap{
