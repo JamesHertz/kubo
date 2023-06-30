@@ -98,9 +98,6 @@ var findProvidersRoutingCmd = &cmds.Command{
 					Type:      routing.Provider,
 					Responses: []*peer.AddrInfo{&np},
 				})
-
-				data, _ := json.Marshal(p)
-				lookupLog.Printf(`{"cid": "%s", "peers": %v }`, c, string(data))
 			}
 		}()
 
