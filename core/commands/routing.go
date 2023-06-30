@@ -85,10 +85,9 @@ var findProvidersRoutingCmd = &cmds.Command{
 		ctx, events := routing.RegisterForQueryEvents(ctx)
 
 		// FINISH over here :)
-		// start       := time.Now()
-		// peers_found  := make(map[peer.ID]struct{}, 10)
+		start       := time.Now()
 
-		// responses := [][]*peer.AddrInfo{}
+		responses := [][]*peer.AddrInfo{}
 		pchan  := n.Routing.FindProvidersAsync(ctx, c, numProviders)
 
 		go func() {
@@ -105,33 +104,28 @@ var findProvidersRoutingCmd = &cmds.Command{
 			}
 		}()
 
-		count_tot  := 0
-		count_prov := 0
 		for e := range events {
 			if err := res.Emit(e); err != nil {
 				return err
 			}
-			// responses = append(responses, e.Responses)
-			count_tot += len(e.Responses)
 			if e.Type == routing.Provider {
-				count_prov += len(e.Responses)
+				responses = append(responses, e.Responses)
 			}
 		}
 
-		// total := time.Since(start).Microseconds()
+		total := time.Since(start).Microseconds()
 
-		// peers := []peer.ID{}
-		// for _, res := range responses {
-		// 	for _, pa := range res {
-		// 		peers = append(peers, pa.ID)
-		// 	}
-		// }
+		peers := []peer.ID{}
+		for _, res := range responses {
+			for _, pa := range res {
+				peers = append(peers, pa.ID)
+			}
+		}
 
-		// data, _ := json.Marshal(peers)
+		data, _ := json.Marshal(peers)
 		// count the response .. :)
 		// fmt.Printf("took: %d ms to find %d providers for %s\n", time.Since(start).Milliseconds(), peers_count, c.String())
-		// lookupLog.Printf(`{"cid": "%s" , "time_ms": %d, "providers": %s }`, c, total, string(data))
-		lookupLog.Printf(`{"cid": "%s" , "count_tot": %d, "count_prov": %d }`, c, count_tot, count_prov)
+		lookupLog.Printf(`{"cid": "%s" , "time_ms": %d, "providers": %s }`, c, total, string(data))
 		return nil
 	},
 	Encoders: cmds.EncoderMap{
