@@ -84,8 +84,7 @@ var findProvidersRoutingCmd = &cmds.Command{
 		ctx, cancel := context.WithCancel(req.Context)
 		ctx, events := routing.RegisterForQueryEvents(ctx)
 
-		// FINISH over here :)
-		start       := time.Now()
+		start := time.Now()
 
 		responses := [][]*peer.AddrInfo{}
 		pchan  := n.Routing.FindProvidersAsync(ctx, c, numProviders)
@@ -110,7 +109,7 @@ var findProvidersRoutingCmd = &cmds.Command{
 			}
 		}
 
-		total := time.Since(start).Microseconds()
+		total := time.Since(start).Milliseconds()
 
 		peers := []peer.ID{}
 		for _, res := range responses {
@@ -120,8 +119,6 @@ var findProvidersRoutingCmd = &cmds.Command{
 		}
 
 		data, _ := json.Marshal(peers)
-		// count the response .. :)
-		// fmt.Printf("took: %d ms to find %d providers for %s\n", time.Since(start).Milliseconds(), peers_count, c.String())
 		lookupLog.Printf(`{"cid": "%s" , "time_ms": %d, "providers": %s }`, c, total, string(data))
 		return nil
 	},
