@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"net"
+	"strings"
 	"time"
 
 	"github.com/ipfs/interface-go-ipfs-core/options"
@@ -114,17 +116,59 @@ const DefaultConnMgrType = "basic"
 const DefaultResourceMgrMinInboundConns = 800
 
 func addressesConfig() Addresses {
+	// this is very specify for test cases
+	// I was using this because nodes were having
+	// problem connection to each other using docker ovelay network
+
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		panic("error getting interface addrs: " + err.Error())
+	}
+
+	var relevantIpv4, swarmAddrs []string
+	
+	for _, addr := range addrs {
+		ip := addr.String()
+		if strings.HasPrefix(ip, "127.") || strings.HasPrefix(ip, "192.") { 
+			relevantIpv4= append(
+				relevantIpv4, 
+				strings.Split(ip, "/")[0],
+			)
+
+		} 
+	}
+
+	templates := []string {
+		"/ip4/%s/tcp/4001",
+		"/ip4/%s/udp/4001/quic",
+		"/ip4/%s/udp/4001/quic-v1",
+		"/ip4/%s/udp/4001/quic-v1/webtransport",
+	};
+
+
+	for _, addrTemplate:= range templates {
+		for _, ipv4 := range relevantIpv4 {
+			swarmAddrs = append(
+				swarmAddrs, 
+				fmt.Sprintf(addrTemplate, ipv4),
+			)
+		}
+	}
+
 	return Addresses{
+		Swarm: swarmAddrs,
+		/*
 		Swarm: []string{
 			"/ip4/0.0.0.0/tcp/4001",
-			"/ip6/::/tcp/4001",
 			"/ip4/0.0.0.0/udp/4001/quic",
 			"/ip4/0.0.0.0/udp/4001/quic-v1",
 			"/ip4/0.0.0.0/udp/4001/quic-v1/webtransport",
 			"/ip6/::/udp/4001/quic",
+			"/ip6/::/tcp/4001",
 			"/ip6/::/udp/4001/quic-v1",
 			"/ip6/::/udp/4001/quic-v1/webtransport",
 		},
+		*/
 		Announce:       []string{},
 		AppendAnnounce: []string{},
 		NoAnnounce:     []string{},
