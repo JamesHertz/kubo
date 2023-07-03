@@ -109,7 +109,8 @@ var findProvidersRoutingCmd = &cmds.Command{
 			}
 		}
 
-		total := time.Since(start).Milliseconds()
+		// so that I may get milliseconds with decimal cases
+		total := float64(time.Since(start))/float64(time.Millisecond)
 
 		peers := []peer.ID{}
 		for _, res := range responses {
