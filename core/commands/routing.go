@@ -120,7 +120,7 @@ var findProvidersRoutingCmd = &cmds.Command{
 		}
 
 		data, _ := json.Marshal(peers)
-		lookupLog.Printf(`{"cid": "%s" , "time_ms": %d, "providers": %s }`, c, total, string(data))
+		lookupLog.Printf(`{"cid": "%s" , "time_ms": %f, "providers": %s }`, c, total, string(data))
 		return nil
 	},
 	Encoders: cmds.EncoderMap{
