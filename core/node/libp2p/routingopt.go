@@ -118,7 +118,7 @@ func constructDHTRouting(mode dht.ModeOpt) func(
 				dht.Mode(mode),
 				dht.Datastore(dstore),
 				dht.Validator(validator),
-				dht.BucketSize(5), // set bucket size :)
+				dht.BucketSize(10), // set bucket size :)
 				dht.ProtocolPrefix("/ipfs-exp"),
 			),
 			dual.WanDHTOption(dht.BootstrapPeers(bootstrapPeers...)),
