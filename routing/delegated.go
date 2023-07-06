@@ -346,6 +346,7 @@ func dhtRoutingFromConfig(conf config.Router, extra *ExtraDHTParams) (routing.Ro
 		return nil, errors.New("incorrect params for DHT router")
 	}
 
+	println("acceleratDHTClient: ", params.AcceleratedDHTClient)
 	if params.AcceleratedDHTClient {
 		return createFullRT(extra)
 	}
