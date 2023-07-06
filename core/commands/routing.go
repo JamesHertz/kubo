@@ -201,6 +201,7 @@ var provideRefRoutingCmd = &cmds.Command{
 				return err
 			}
 
+			/* NO need since its an experiment :)
 			has, err := nd.Blockstore.Has(req.Context, c)
 			if err != nil {
 				return err
@@ -209,6 +210,7 @@ var provideRefRoutingCmd = &cmds.Command{
 			if !has {
 				return fmt.Errorf("block %s not found locally, cannot provide", c)
 			}
+			*/
 
 			cids = append(cids, c)
 		}
