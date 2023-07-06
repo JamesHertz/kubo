@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -19,7 +18,6 @@ import (
 	peer "github.com/libp2p/go-libp2p/core/peer"
 	routing "github.com/libp2p/go-libp2p/core/routing"
 
-	utils "github.com/ipfs/kubo/cmd/ipfs/util"
 )
 
 var RoutingCmd = &cmds.Command{
@@ -44,8 +42,6 @@ const (
 const (
 	numProvidersOptionName = "num-providers"
 )
-
-var lookupLog = utils.NewLogger("lookup-times.log")
 
 var findProvidersRoutingCmd = &cmds.Command{
 	Helptext: cmds.HelpText{
@@ -84,9 +80,6 @@ var findProvidersRoutingCmd = &cmds.Command{
 		ctx, cancel := context.WithCancel(req.Context)
 		ctx, events := routing.RegisterForQueryEvents(ctx)
 
-		start := time.Now()
-
-		responses := [][]*peer.AddrInfo{}
 		pchan  := n.Routing.FindProvidersAsync(ctx, c, numProviders)
 
 		go func() {
@@ -104,23 +97,8 @@ var findProvidersRoutingCmd = &cmds.Command{
 			if err := res.Emit(e); err != nil {
 				return err
 			}
-			if e.Type == routing.Provider {
-				responses = append(responses, e.Responses)
-			}
 		}
 
-		// so that I may get milliseconds with decimal cases
-		total := float64(time.Since(start))/float64(time.Millisecond)
-
-		peers := []peer.ID{}
-		for _, res := range responses {
-			for _, pa := range res {
-				peers = append(peers, pa.ID)
-			}
-		}
-
-		data, _ := json.Marshal(peers)
-		lookupLog.Printf(`{"cid": "%s" , "time_ms": %.2f, "providers": %s }`, c, total, string(data))
 		return nil
 	},
 	Encoders: cmds.EncoderMap{

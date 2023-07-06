@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	_ "expvar"
 	"fmt"
@@ -44,11 +43,9 @@ import (
 	prometheus "github.com/prometheus/client_golang/prometheus"
 	promauto "github.com/prometheus/client_golang/prometheus/promauto"
 
-	utils "github.com/ipfs/kubo/cmd/ipfs/util"
 )
 
 
-var peersLog = utils.NewLogger("peers.log")
 
 const (
 	adjustFDLimitKwd           = "manage-fdlimit"
@@ -595,40 +592,6 @@ take effect.
 		fmt.Println("Received interrupt signal, shutting down...")
 		fmt.Println("(Hit ctrl-c again to force-shutdown the daemon.)")
 	}()
-
-	var wg sync.WaitGroup
-
-	// wait for my thing to finish
-	defer wg.Wait() 
-
-	// FINISH get logs from routing table :)
-	go func() {
-		wg.Add(1)
-		defer wg.Done()
-
-		// so I can take another sample of the routing table right when it's ending
-		timeIsOver := false
-		for {
-			 // here is where the peers we are using are being added
-			lan_peers := node.DHT.LAN.RoutingTable().ListPeers()
-			res, _ := json.Marshal(lan_peers)
-			peersLog.Printf(string(res))
-
-			if timeIsOver {
-				return
-			}
-
-			select {
-			case <-req.Context.Done():
-				timeIsOver = true
-			case <- time.After(time.Minute): // wait a minute :)
-			}
-
-		}
-		// TODO: discover which DHT ipfs is using :)
-		// node.DHT.LAN.RoutingTable().ListPeers() { list this ones :)}
-	}()
-
 
 	// Give the user heads up if daemon running in online mode has no peers after 1 minute
 	if !offline {
