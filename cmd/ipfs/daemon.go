@@ -596,8 +596,8 @@ take effect.
 	go func() {
 		<-req.Context.Done()
 		notifyStopping()
-		fmt.Println("Received interrupt signal, shutting down...")
-		fmt.Println("(Hit ctrl-c again to force-shutdown the daemon.)")
+		// fmt.Println("Received interrupt signal, shutting down...")
+		// fmt.Println("(Hit ctrl-c again to force-shutdown the daemon.)")
 	}()
 
 	var wg sync.WaitGroup
