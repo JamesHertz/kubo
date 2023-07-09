@@ -113,6 +113,7 @@ require (
 
 require (
 	github.com/AndreasBriese/bbloom v0.0.0-20190825152654-46b345b51c96 // indirect
+	github.com/ChainSafe/go-keyspace v0.0.0-20220830203127-eae3b7c602f0 // indirect
 	github.com/Kubuxu/go-os-helper v0.0.1 // indirect
 	github.com/alecthomas/units v0.0.0-20210927113745-59d0afb8317a // indirect
 	github.com/alexbrainman/goissue34681 v0.0.0-20191006012335-3fc7a47baff5 // indirect
@@ -219,7 +220,6 @@ require (
 	github.com/whyrusleeping/base32 v0.0.0-20170828182744-c30ac30633cc // indirect
 	github.com/whyrusleeping/cbor-gen v0.0.0-20230126041949-52956bd4c9aa // indirect
 	github.com/whyrusleeping/chunker v0.0.0-20181014151217-fe64bd25879f // indirect
-	github.com/whyrusleeping/go-keyspace v0.0.0-20160322163242-5b898ac5add1 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.7.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.7.0 // indirect
 	go.opentelemetry.io/otel/metric v0.30.0 // indirect
@@ -246,8 +246,10 @@ require (
 )
 
 // dependecies
-// replace github.com/libp2p/go-libp2p => github.com/JamesHertz/go-libp2p v0.26.4-research
-// replace github.com/libp2p/go-libp2p-kbucket => github.com/JamesHertz/go-libp2p-kbucket v0.5.1-research-v2
+replace github.com/libp2p/go-libp2p => github.com/JamesHertz/go-libp2p v0.26.4-research
+replace github.com/libp2p/go-libp2p-kbucket => github.com/JamesHertz/go-libp2p-kbucket v0.5.1-research-v2.1
+replace github.com/libp2p/go-libp2p-kad-dht => github.com/JamesHertz/go-libp2p-kad-dht v0.21.1-secure-v1.2
+
 // replace github.com/libp2p/go-libp2p-kad-dht => github.com/JamesHertz/go-libp2p-kad-dht { v0.21.1-secure-v1 , v0.21.1-normal }
 
 go 1.18

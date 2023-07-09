@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	"errors"
 	_ "expvar"
 	"fmt"
@@ -44,11 +44,15 @@ import (
 	prometheus "github.com/prometheus/client_golang/prometheus"
 	promauto "github.com/prometheus/client_golang/prometheus/promauto"
 
-	utils "github.com/ipfs/kubo/cmd/ipfs/util"
+	logging "github.com/ipfs/go-log"
 )
 
 
-var peersLog = utils.NewLogger("peers.log")
+const (
+	logStart     = "xxx-start-xxx"
+	logEnd       = "xxx-end-xxx"
+	samplePeriod = time.Minute
+)
 
 const (
 	adjustFDLimitKwd           = "manage-fdlimit"
@@ -601,18 +605,27 @@ take effect.
 	// wait for my thing to finish
 	defer wg.Wait() 
 
-	// FINISH get logs from routing table :)
+	// let's silence all the logs :)
+	logging.SetAllLoggers(logging.LevelDPanic)
 	go func() {
+
 		wg.Add(1)
 		defer wg.Done()
+
+		// let's wait before doing anything :)
+		time.Sleep(samplePeriod) 
 
 		// so I can take another sample of the routing table right when it's ending
 		timeIsOver := false
 		for {
 			 // here is where the peers we are using are being added
-			lan_peers := node.DHT.LAN.RoutingTable().ListPeers()
-			res, _ := json.Marshal(lan_peers)
-			peersLog.Printf(string(res))
+			// lan_peers := node.DHT.LAN.RoutingTable().ListPeers()
+			// res, _ := json.Marshal(lan_peers)
+			// peersLog.Printf(string(res))
+
+			println(logStart)
+			node.DHT.LAN.RoutingTable().Print()
+			println(logEnd)
 
 			if timeIsOver {
 				return
@@ -621,12 +634,9 @@ take effect.
 			select {
 			case <-req.Context.Done():
 				timeIsOver = true
-			case <- time.After(time.Minute): // wait a minute :)
+			case <- time.After(samplePeriod):
 			}
-
 		}
-		// TODO: discover which DHT ipfs is using :)
-		// node.DHT.LAN.RoutingTable().ListPeers() { list this ones :)}
 	}()
 
 
