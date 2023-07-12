@@ -607,6 +607,7 @@ take effect.
 
 	// let's silence all the logs :)
 	logging.SetAllLoggers(logging.LevelDPanic)
+	logging.SetLogLevel("dht-exp/provide", "INFO")
 	go func() {
 
 		wg.Add(1)
