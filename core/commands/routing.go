@@ -39,6 +39,7 @@ var RoutingCmd = &cmds.Command{
 
 const (
 	dhtVerboseOptionName = "verbose"
+	cidtypeOptionName = "cidtype"
 )
 
 const (
@@ -59,6 +60,7 @@ var findProvidersRoutingCmd = &cmds.Command{
 	Options: []cmds.Option{
 		cmds.BoolOption(dhtVerboseOptionName, "v", "Print extra information."),
 		cmds.IntOption(numProvidersOptionName, "n", "The number of providers to find.").WithDefault(20),
+		cmds.StringOption(cidtypeOptionName, "t", "The type of the cid to find providers for.").WithDefault(""),	
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		n, err := cmdenv.GetNode(env)
@@ -81,8 +83,13 @@ var findProvidersRoutingCmd = &cmds.Command{
 			return err
 		}
 
+		cidtype, _ := req.Options[cidtypeOptionName].(string)
+
+		lookupLog.Printf(`resolving {"cid": "%s" , "cidtype": "%s"}\n`, c, cidtype)
+
 		ctx, cancel := context.WithCancel(req.Context)
 		ctx, events := routing.RegisterForQueryEvents(ctx)
+		ctx = context.WithValue(ctx, cidtypeOptionName, cidtype)
 
 		start := time.Now()
 
@@ -170,6 +177,7 @@ var provideRefRoutingCmd = &cmds.Command{
 	Options: []cmds.Option{
 		cmds.BoolOption(dhtVerboseOptionName, "v", "Print extra information."),
 		cmds.BoolOption(recursiveOptionName, "r", "Recursively provide entire graph."),
+		cmds.StringOption(cidtypeOptionName, "t", "The type of the cid to find providers for.").WithDefault(""),	
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		nd, err := cmdenv.GetNode(env)
@@ -215,8 +223,15 @@ var provideRefRoutingCmd = &cmds.Command{
 			cids = append(cids, c)
 		}
 
+
+		cidtype, _ := req.Options[cidtypeOptionName].(string)
+
 		ctx, cancel := context.WithCancel(req.Context)
 		ctx, events := routing.RegisterForQueryEvents(ctx)
+		ctx = context.WithValue(ctx, cidtypeOptionName, cidtype)
+
+		// TODO: add some sort of logs here :)
+
 
 		var provideErr error
 		go func() {
