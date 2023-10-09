@@ -91,6 +91,12 @@ var findProvidersRoutingCmd = &cmds.Command{
 		ctx, events := routing.RegisterForQueryEvents(ctx)
 		ctx = context.WithValue(ctx, cidtypeOptionName, cidtype)
 
+		aux, ok := ctx.Value(cidtypeOptionName).(string)
+
+		if ok {
+			println("from ctx:", cidtypeOptionName, ":", aux)
+		}
+
 		start := time.Now()
 
 		responses := [][]*peer.AddrInfo{}
@@ -177,7 +183,6 @@ var provideRefRoutingCmd = &cmds.Command{
 	Options: []cmds.Option{
 		cmds.BoolOption(dhtVerboseOptionName, "v", "Print extra information."),
 		cmds.BoolOption(recursiveOptionName, "r", "Recursively provide entire graph."),
-		cmds.StringOption(cidtypeOptionName, "t", "The type of the cid to find providers for.").WithDefault(""),	
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		nd, err := cmdenv.GetNode(env)
@@ -223,15 +228,8 @@ var provideRefRoutingCmd = &cmds.Command{
 			cids = append(cids, c)
 		}
 
-
-		cidtype, _ := req.Options[cidtypeOptionName].(string)
-
 		ctx, cancel := context.WithCancel(req.Context)
 		ctx, events := routing.RegisterForQueryEvents(ctx)
-		ctx = context.WithValue(ctx, cidtypeOptionName, cidtype)
-
-		// TODO: add some sort of logs here :)
-
 
 		var provideErr error
 		go func() {
