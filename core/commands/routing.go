@@ -91,12 +91,6 @@ var findProvidersRoutingCmd = &cmds.Command{
 		ctx, events := routing.RegisterForQueryEvents(ctx)
 		ctx = context.WithValue(ctx, cidtypeOptionName, cidtype)
 
-		aux, ok := ctx.Value(cidtypeOptionName).(string)
-
-		if ok {
-			println("from ctx:", cidtypeOptionName, ":", aux)
-		}
-
 		start := time.Now()
 
 		responses := [][]*peer.AddrInfo{}
