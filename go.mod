@@ -249,10 +249,5 @@ require (
 // replace github.com/libp2p/go-libp2p => github.com/JamesHertz/go-libp2p v0.26.4-research
 // replace github.com/libp2p/go-libp2p-kbucket => github.com/JamesHertz/go-libp2p-kbucket v0.5.1-research-v2
 // replace github.com/libp2p/go-libp2p-kad-dht => github.com/JamesHertz/go-libp2p-kad-dht { v0.21.1-secure-v1 , v0.21.1-normal }
-replace github.com/libp2p/go-libp2p => github.com/JamesHertz/go-libp2p v0.26.4-research
-
-replace github.com/libp2p/go-libp2p-kbucket => github.com/JamesHertz/go-libp2p-kbucket v0.5.1-research-v2.1
-
-replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht
 
 go 1.18
