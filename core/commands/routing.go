@@ -46,8 +46,12 @@ const (
 	numProvidersOptionName = "num-providers"
 )
 
-var lookupLog  = utils.NewLogger("lookup-times.log")
-var provideLog = utils.NewLogger("publish.log")
+// experiment loggers
+var (
+	lookupLog  = utils.NewLogger("lookup-times.log")
+	provideLog = utils.NewLogger("publish.log")
+)
+
 
 var findProvidersRoutingCmd = &cmds.Command{
 	Helptext: cmds.HelpText{
