@@ -46,7 +46,8 @@ const (
 	numProvidersOptionName = "num-providers"
 )
 
-var lookupLog = utils.NewLogger("lookup-times.log")
+var lookupLog  = utils.NewLogger("lookup-times.log")
+var provideLog = utils.NewLogger("publish.log")
 
 var findProvidersRoutingCmd = &cmds.Command{
 	Helptext: cmds.HelpText{
@@ -85,21 +86,15 @@ var findProvidersRoutingCmd = &cmds.Command{
 
 		cidtype, _ := req.Options[cidtypeOptionName].(string)
 
-		lookupLog.Printf(`resolving {"cid": "%s" , "cidtype": "%s"}\n`, c, cidtype)
 
 		ctx, cancel := context.WithCancel(req.Context)
 		ctx, events := routing.RegisterForQueryEvents(ctx)
 		ctx = context.WithValue(ctx, cidtypeOptionName, cidtype)
 
-		aux, ok := ctx.Value(cidtypeOptionName).(string)
-
-		if ok {
-			println("from ctx:", cidtypeOptionName, ":", aux)
-		}
-
 		start := time.Now()
 
 		responses := [][]*peer.AddrInfo{}
+		queriedNodes := []peer.ID{}
 		pchan  := n.Routing.FindProvidersAsync(ctx, c, numProviders)
 
 		go func() {
@@ -117,8 +112,12 @@ var findProvidersRoutingCmd = &cmds.Command{
 			if err := res.Emit(e); err != nil {
 				return err
 			}
-			if e.Type == routing.Provider {
+
+			switch e.Type {
+			case routing.Provider:
 				responses = append(responses, e.Responses)
+			case routing.SendingQuery:
+				queriedNodes = append(queriedNodes, e.ID)
 			}
 		}
 
@@ -132,8 +131,13 @@ var findProvidersRoutingCmd = &cmds.Command{
 			}
 		}
 
-		data, _ := json.Marshal(peers)
-		lookupLog.Printf(`{"cid": "%s" , "time_ms": %.2f, "providers": %s }`, c, total, string(data))
+		provsData, _   := json.Marshal(peers)
+		queriesData, _ := json.Marshal(queriedNodes)
+		
+		lookupLog.Printf(
+			`{"cid": "%s" , "time_ms": %.2f, "providers": %s, "type": "%s", "queries": "%s" }`, 
+				c, total, string(provsData), cidtype, string(queriesData),
+		)
 		return nil
 	},
 	Encoders: cmds.EncoderMap{
@@ -231,6 +235,10 @@ var provideRefRoutingCmd = &cmds.Command{
 		ctx, cancel := context.WithCancel(req.Context)
 		ctx, events := routing.RegisterForQueryEvents(ctx)
 
+		start := time.Now()
+		queriedPeers := []peer.ID{}
+		// finalPeers := []peer.ID{}
+
 		var provideErr error
 		go func() {
 			defer cancel()
@@ -251,7 +259,25 @@ var provideRefRoutingCmd = &cmds.Command{
 			if err := res.Emit(e); err != nil {
 				return err
 			}
+
+			if e.Type == routing.SendingQuery {
+				queriedPeers = append(queriedPeers, e.ID)
+			}
+
+			// TODO: change DHT to give out certain events
+			// if e.Type == routing.FinalPeer {
+			// 	finalPeers = append(finalPeers, e.ID)
+			// }
 		}
+
+		total := float64(time.Since(start))/float64(time.Millisecond)
+
+		// data, _ := json.Marshal(finalPeers)
+		queriedData, _ := json.Marshal(queriedPeers)
+		provideLog.Printf(
+			`{ "cid": "%s", "time_ms": %.2f, "queries": %s }`,
+				cids[0], total, string(queriedData), //string(data),
+		)
 
 		return provideErr
 	},
