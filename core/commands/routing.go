@@ -139,7 +139,7 @@ var findProvidersRoutingCmd = &cmds.Command{
 		queriesData, _ := json.Marshal(queriedNodes)
 		
 		lookupLog.Printf(
-			`{"cid": "%s" , "time_ms": %.2f, "providers": %s, "type": "%s", "queries": "%s" }`, 
+			`{"cid": "%s" , "time_ms": %.2f, "providers": %s, "type": "%s", "queries": %s }`, 
 				c, total, string(provsData), cidtype, string(queriesData),
 		)
 		return nil
