@@ -97,7 +97,7 @@ var findProvidersRoutingCmd = &cmds.Command{
 
 		start := time.Now()
 
-		responses := [][]*peer.AddrInfo{}
+		providers := []*peer.AddrInfo{}
 		queriedNodes := []peer.ID{}
 		pchan  := n.Routing.FindProvidersAsync(ctx, c, numProviders)
 
@@ -119,7 +119,7 @@ var findProvidersRoutingCmd = &cmds.Command{
 
 			switch e.Type {
 			case routing.Provider:
-				responses = append(responses, e.Responses)
+				providers = append(providers, e.Responses...)
 			case routing.SendingQuery:
 				queriedNodes = append(queriedNodes, e.ID)
 			}
@@ -128,14 +128,13 @@ var findProvidersRoutingCmd = &cmds.Command{
 		// so that I may get milliseconds with decimal cases
 		total := float64(time.Since(start))/float64(time.Millisecond)
 
-		peers := []peer.ID{}
-		for _, res := range responses {
-			for _, pa := range res {
-				peers = append(peers, pa.ID)
-			}
-		}
+		// TODO: think abou this
+		// peers := []peer.ID{}
+		// for _, pa:= range providers {
+		// 	peers = append(peers, pa.ID)
+		// }
 
-		provsData, _   := json.Marshal(peers)
+		provsData, _   := json.Marshal(providers)
 		queriesData, _ := json.Marshal(queriedNodes)
 		
 		lookupLog.Printf(
@@ -241,7 +240,7 @@ var provideRefRoutingCmd = &cmds.Command{
 
 		start := time.Now()
 		queriedPeers := []peer.ID{}
-		// finalPeers := []peer.ID{}
+		finalPeers := []peer.ID{}
 
 		var provideErr error
 		go func() {
@@ -269,18 +268,18 @@ var provideRefRoutingCmd = &cmds.Command{
 			}
 
 			// TODO: change DHT to give out certain events
-			// if e.Type == routing.FinalPeer {
-			// 	finalPeers = append(finalPeers, e.ID)
-			// }
+			if e.Type == routing.FinalPeer {
+				finalPeers = append(finalPeers, e.ID)
+			}
 		}
 
 		total := float64(time.Since(start))/float64(time.Millisecond)
 
-		// data, _ := json.Marshal(finalPeers)
+		data, _ := json.Marshal(finalPeers)
 		queriedData, _ := json.Marshal(queriedPeers)
 		provideLog.Printf(
-			`{ "cid": "%s", "time_ms": %.2f, "queries": %s }`,
-				cids[0], total, string(queriedData), //string(data),
+			`{ "cid": "%s", "time_ms": %.2f, "queries": %s, "final_peers": %s }`,
+				cids[0], total, string(queriedData), string(data),
 		)
 
 		return provideErr
