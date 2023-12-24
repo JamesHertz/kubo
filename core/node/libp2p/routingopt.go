@@ -2,7 +2,9 @@ package libp2p
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -111,6 +113,23 @@ func constructDHTRouting(mode dht.ModeOpt) func(
 		validator record.Validator,
 		bootstrapPeers ...peer.AddrInfo,
 	) (routing.Routing, error) {
+		var (
+			bucketSizeStr = os.Getenv("IPFS_BUCKET_SIZE")
+			err 		 error
+			bucketSize 	 int
+		)
+
+		if bucketSizeStr != "" {
+			bucketSize, err = strconv.Atoi(bucketSizeStr)
+			if err != nil {
+				panic(fmt.Sprintf("Error parsing IPFS_BUCKET_SIZE (%s): %v", bucketSizeStr, err))
+			}
+		} else {
+			// default bucket size c: for experimental purposes
+			bucketSize = 10
+		}
+
+		fmt.Printf("Node's Bucket size: %d\n", bucketSize)
 		return dual.New(
 			ctx, host,
 			dual.DHTOption(
@@ -118,7 +137,7 @@ func constructDHTRouting(mode dht.ModeOpt) func(
 				dht.Mode(mode),
 				dht.Datastore(dstore),
 				dht.Validator(validator),
-				dht.BucketSize(10), // set bucket size :) (TODO: make this an environment variable)
+				dht.BucketSize(bucketSize),
 				dht.ProtocolPrefix("/ipfs-exp"),
 			),
 			dual.WanDHTOption(dht.BootstrapPeers(bootstrapPeers...)),
