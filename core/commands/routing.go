@@ -278,7 +278,7 @@ var provideRefRoutingCmd = &cmds.Command{
 		data, _ := json.Marshal(finalPeers)
 		queriedData, _ := json.Marshal(queriedPeers)
 		provideLog.Printf(
-			`{ "cid": "%s", "time_ms": %.2f, "queries": %s, "final_peers": %s }`,
+			`{ "cid": "%s", "time_ms": %.2f, "queries": %s, "store_nodes": %s }`,
 				cids[0], total, string(queriedData), string(data),
 		)
 
