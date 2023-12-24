@@ -240,7 +240,7 @@ var provideRefRoutingCmd = &cmds.Command{
 
 		start := time.Now()
 		queriedPeers := []peer.ID{}
-		finalPeers := []peer.ID{}
+		storeNodes := []peer.ID{}
 
 		var provideErr error
 		go func() {
@@ -269,13 +269,13 @@ var provideRefRoutingCmd = &cmds.Command{
 
 			// TODO: change DHT to give out certain events
 			if e.Type == routing.FinalPeer {
-				finalPeers = append(finalPeers, e.ID)
+				storeNodes = append(storeNodes, e.ID)
 			}
 		}
 
 		total := float64(time.Since(start))/float64(time.Millisecond)
 
-		data, _ := json.Marshal(finalPeers)
+		data, _ := json.Marshal(storeNodes)
 		queriedData, _ := json.Marshal(queriedPeers)
 		provideLog.Printf(
 			`{ "cid": "%s", "time_ms": %.2f, "queries": %s, "store_nodes": %s }`,
